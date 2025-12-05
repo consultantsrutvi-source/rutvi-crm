@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Rutvi Consultants — CRM, Billing & EMI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f5fffb; --card:#fff; --accent:#0b946f; --muted:#5f6b66;
+  }
+  body{font-family:Inter,system-ui,Arial, sans-serif;margin:0;background:linear-gradient(180deg,#f5fffb,#eef9f1);color:#04281a}
+  .wrap{max-width:1100px;margin:14px auto;padding:12px}
+  header{display:flex;align-items:center;gap:12px}
+  header img{width:64px;height:64px;border-radius:12px;object-fit:cover}
+  h1{margin:0;font-size:20px}
+  .desc{color:var(--muted);font-size:13px}
+  .dashboard{display:flex;gap:10px;justify-content:center;margin:16px 0}
+  .dash-btn{min-width:150px;padding:10px 14px;border-radius:10px;background:#fff;border:1px solid rgba(11,148,111,0.08);box-shadow:0 10px 26px rgba(4, 40, 20, 0.04);cursor:pointer;font-weight:700;color:var(--accent);text-align:center}
+  .card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 10px 22px rgba(0,0,0,0.04);margin-bottom:12px}
+  label{font-weight:700;display:block;margin-top:8px}
+  input,select,textarea,button{padding:10px;border-radius:8px;border:1px solid #e9f7f1;margin-top:6px;box-sizing:border-box;width:100%}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .row{display:flex;gap:8px}
+  .small{font-size:13px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;margin-top:10px}
+  th,td{border:1px solid rgba(0,0,0,0.06);padding:8px;text-align:left}
+  th{background:#f2fff7}
+  .printable{display:none;background:#fff;padding:12px;border-radius:10px}
+  @media print{
+    body *{visibility:hidden}
+    .printable, .printable *{visibility:visible}
+    .printable{position:absolute;left:0;top:0;width:100%}
+  }
+  .primary{background:linear-gradient(90deg,var(--accent),#18b573);color:#fff;border:none;padding:10px;border-radius:8px;cursor:pointer;font-weight:700}
+  .muted{color:var(--muted)}
+  .btn-ghost{background:#fff;border:1px solid #e8f3ee;padding:10px;border-radius:8px;cursor:pointer}
+  .small-note{font-size:12px;color:#6b7a72}
+  .mini{font-size:12px;padding:6px 8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="logo.png.jpg" alt="logo">
+    <div>
+      <h1>Rutvi Consultants</h1>
+      <div class="desc">Small CRM — requirements, lecturers, placements, invoice & EMI generator</div>
+    </div>
+  </header>
+
+  <!-- Dashboard (compact small buttons) -->
+  <div class="dashboard">
+    <div class="dash-btn" onclick="nav('requirements')">Requirements</div>
+    <div class="dash-btn" onclick="nav('lecturers')">Lecturers</div>
+    <div class="dash-btn" onclick="nav('placements')">Placements & Billing</div>
+    <div class="dash-btn" onclick="nav('emi')">EMI Schedule</div>
+    <div class="dash-btn" onclick="nav('summaries')">Summaries</div>
+    <div class="dash-btn" onclick="nav('howto')">How to use</div>
+  </div>
+
+  <!-- REQUIREMENTS -->
+  <section id="requirements" class="card">
+    <h3 style="margin:0">Add Requirement</h3>
+    <div class="small muted">Fill college requirement. Save writes row to your Google Sheet.</div>
+
+    <div class="grid2" style="margin-top:10px">
+      <div><label>College name</label><input id="req_college" placeholder="College name"></div>
+      <div><label>City</label><input id="req_city" placeholder="City"></div>
+      <div><label>Contact person</label><input id="req_contact" placeholder="Name"></div>
+      <div><label>Phone</label><input id="req_phone" placeholder="Phone"></div>
+      <div><label>Subject</label>
+        <select id="req_subject">
+          <option value="">Select subject</option>
+          <option>Physics</option><option>Maths</option><option>Chemistry</option><option>Zoology</option><option>Botany</option><option>Biology</option><option>Others</option>
+        </select>
+      </div>
+      <div><label>No. of faculty</label><input id="req_no" value="1"></div>
+      <div><label>Salary range</label>
+        <select id="req_salary">
+          <option>₹50,000 - ₹80,000</option><option>₹80,001 - ₹1,20,000</option><option>₹1,20,001 - ₹2,00,000</option><option>₹2,00,001 - ₹3,00,000</option>
+        </select>
+      </div>
+      <div><label>Collected by</label>
+        <select id="req_collected">
+          <option>Nandan</option><option>Nithik</option><option>Sanjana</option><option>Gaanavi</option><option>Nitish</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top:10px;display:flex;gap:8px">
+      <button class="primary" onclick="saveRequirement()">Save Requirement</button>
+      <button class="btn-ghost" onclick="clearRequirement()">Clear</button>
+      <button class="btn-ghost" onclick="showReqSummary()">Print Summary</button>
+    </div>
+    <div id="req_msg" class="small" style="margin-top:8px"></div>
+
+    <!-- printable summary -->
+    <div id="req_summary" class="printable" style="margin-top:12px">
+      <h3>Requirements Summary</h3>
+      <table id="req_summary_table"><thead><tr><th>Ref</th><th>College</th><th>City</th><th>Subject</th><th>No.</th><th>Salary Range</th><th>Collected By</th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- LECTURERS -->
+  <section id="lecturers" class="card" style="display:none">
+    <h3 style="margin:0">Add Lecturer / Candidate</h3>
+    <div class="small muted">Email optional. CV received toggle included.</div>
+    <div class="grid2" style="margin-top:10px">
+      <div><label>Name</label><input id="lec_name"></div>
+      <div><label>Phone</label><input id="lec_phone"></div>
+      <div><label>Email (optional)</label><input id="lec_email"></div>
+      <div><label>CV received</label><select id="lec_cv"><option>Yes</option><option>No</option></select></div>
+      <div><label>Subject</label>
+        <select id="lec_subject"><option>Physics</option><option>Maths</option><option>Chemistry</option><option>Zoology</option><option>Botany</option><option>Biology</option><option>Others</option></select>
+      </div>
+      <div><label>Experience (yrs)</label><input id="lec_exp"></div>
+      <div><label>Preferred city</label><input id="lec_city"></div>
+      <div><label>Collected by</label>
+        <select id="lec_collected"><option>Nandan</option><option>Nithik</option><option>Sanjana</option><option>Gaanavi</option><option>Nitish</option></select>
+      </div>
+    </div>
+
+    <div style="margin-top:10px;display:flex;gap:8px">
+      <button class="primary" onclick="saveLecturer()">Save Lecturer</button>
+      <button class="btn-ghost" onclick="clearLecturer()">Clear</button>
+      <button class="btn-ghost" onclick="showLectSummary()">Print Summary</button>
+    </div>
+    <div id="lec_msg" class="small" style="margin-top:8px"></div>
+
+    <div id="lec_summary" class="printable" style="margin-top:12px">
+      <h3>Lecturers Summary</h3>
+      <table id="lec_summary_table"><thead><tr><th>Ref</th><th>Name</th><th>Phone</th><th>Email</th><th>CV</th><th>Subject</th><th>Exp</th><th>Collected</th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- PLACEMENTS & BILL -->
+  <section id="placements" class="card" style="display:none">
+    <h3 style="margin:0">Placement & Provisional Bill</h3>
+    <div class="small muted">Enter joining & first salary dates. Then Generate provisional bill and EMI schedule.</div>
+
+    <div class="grid2" style="margin-top:10px">
+      <div><label>Lecturer name</label><input id="pl_lect"></div>
+      <div><label>College name</label><input id="pl_college"></div>
+      <div><label>Subject</label><select id="pl_subject"><option>Physics</option><option>Maths</option><option>Chemistry</option><option>Zoology</option><option>Botany</option><option>Biology</option><option>Others</option></select></div>
+      <div><label>City</label><input id="pl_city"></div>
+      <div><label>Phone</label><input id="pl_phone"></div>
+      <div><label>First salary (₹)</label><input id="pl_salary" placeholder="e.g. 120000"></div>
+      <div><label>Joining date</label><input id="pl_joining" type="date"></div>
+      <div><label>First salary date</label><input id="pl_first_salary_date" type="date"></div>
+      <div><label>Incharge</label><select id="pl_incharge"><option>Nandan</option><option>Nithik</option></select></div>
+      <div><label>Collected by</label><select id="pl_collected"><option>Nandan</option><option>Nithik</option><option>Sanjana</option><option>Gaanavi</option><option>Nitish</option></select></div>
+    </div>
+
+    <hr style="margin:12px 0">
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <div style="min-width:160px"><label>Consultancy %</label><input id="pl_consult_pct" value="50"></div>
+      <div style="min-width:160px"><label>Pre-joining fee (₹)</label><input id="pl_prejoin" value="499"></div>
+      <div style="min-width:120px"><label>GST %</label><input id="pl_gst" value="18"></div>
+      <div style="min-width:240px" class="small-note inline"><label><input id="pl_keep_final" type="checkbox"> Keep final = consultancy (GST included)</label></div>
+      <div><button class="primary" onclick="generateBill()">Generate Bill</button></div>
+    </div>
+
+    <div id="pl_calc" style="margin-top:12px"></div>
+
+    <div id="invoice_preview" class="printable" style="margin-top:12px">
+      <h3>Provisional Invoice</h3>
+      <div style="display:flex;justify-content:space-between"><div><strong>Rutvi Consultants</strong><div class="small">#37 Anjanadri Layout, Tarabanahalli, Bengaluru</div></div><div style="text-align:right"><strong>Ref:</strong> <span id="inv_ref"></span><br><span id="inv_date"></span></div></div>
+      <table id="inv_table"><thead><tr><th>S.No</th><th>Service</th><th>Amount (₹)</th></tr></thead><tbody></tbody></table>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px"><div style="width:280px"><div style="display:flex;justify-content:space-between">Subtotal <span id="inv_sub"></span></div><div style="display:flex;justify-content:space-between">GST <span id="inv_gst"></span></div><div style="display:flex;justify-content:space-between;font-weight:800">Total <span id="inv_total"></span></div></div></div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button class="primary" onclick="savePlacement()">Save Placement & Invoice</button>
+        <button class="btn-ghost" onclick="printInvoice()">Print Invoice</button>
+        <button id="cal_btn" class="btn-ghost" style="display:none" onclick="openCalendar()">Add EMI dates to Google Calendar</button>
+      </div>
+      <div id="placement_summary" class="small" style="margin-top:10px"></div>
+    </div>
+
+  </section>
+
+  <!-- EMI schedule page -->
+  <section id="emi" class="card" style="display:none">
+    <h3 style="margin:0">EMI Schedule</h3>
+    <div class="small muted">Shows EMI1 and EMI2 for last previewed/generated placement. You can print schedule.</div>
+    <div id="emi_area" style="margin-top:12px"></div>
+    <div style="margin-top:10px"><button class="btn-ghost" onclick="printEmi()">Print EMI Schedule</button></div>
+
+    <div id="emi_print" class="printable" style="margin-top:12px">
+      <h3>EMI Schedule</h3>
+      <table id="emi_table"><thead><tr><th>Ref</th><th>EMI No</th><th>Amount</th><th>Date</th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <!-- Summaries section (all printable) -->
+  <section id="summaries" class="card" style="display:none">
+    <h3 style="margin:0">All Summaries</h3>
+    <div class="small muted">Print summary tables for Requirements, Lecturers, Placements.</div>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="btn-ghost" onclick="showReqSummary()">Requirements Summary</button>
+      <button class="btn-ghost" onclick="showLectSummary()">Lecturers Summary</button>
+      <button class="btn-ghost" onclick="showPlacementSummary()">Placements Summary</button>
+    </div>
+  </section>
+
+  <!-- How to use page -->
+  <section id="howto" class="card" style="display:none">
+    <h3 style="margin:0">How to use — Quick Guide</h3>
+    <ol style="margin-top:10px">
+      <li>Open <strong>Requirements</strong>, fill college info → Save. Check "Requirements" sheet in Google Sheets for saved row.</li>
+      <li>Open <strong>Lecturers</strong>, add candidates (email optional) → Save. Check "Lecturers" sheet.</li>
+      <li>Open <strong>Placements</strong>, enter joining & first salary date, set consultancy % and GST. Click <em>Generate Bill</em> → Preview invoice → Save.</li>
+      <li>After saving Placement, EMI calendar links become available; click <em>Add EMI dates to Google Calendar</em> to open event pages (save them in your Google Calendar).</li>
+      <li>Use <strong>Summaries</strong> to print table-style summaries. Use Print buttons to save PDFs for record or print on letterhead.</li>
+      <li><span class="muted">If rows are not being saved:</span> ensure Apps Script is deployed (Execute as: Me; Who has access: Anyone) and replace the <code>SCRIPT_URL</code> in this file with your current webapp /exec URL.</li>
+    </ol>
+    <div style="margin-top:10px" class="small-note">Notes: The page uses your Apps Script URL (JSONP). Do not change the script URL unless you redeploy. If you redeploy Apps Script, update the SCRIPT_URL here and republish.</div>
+  </section>
+
+</div>
+
+<script>
+/* --------------------- CONFIG: replace this with your deployed Apps Script /exec URL ---------------------
+   Example:
+   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby.../exec";
+   IMPORTANT: put your /exec URL here (exact), no trailing slash.
+----------------------------------------------------------------------------------------------- */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwz7yWjVBm_TQhwTbRu54UzWUNXykt1gwzvAGr06Ygs7eWnzlogDudL4QSQGQTxkZo/exec";
+/* -------------------------------------------------------------------------------------------------- */
+
+/* JSONP GET helper */
+function jsonpGet(url, cbPrefix, cb){
+  const cbName = cbPrefix + '_' + Date.now();
+  window[cbName] = function(data){ try{ cb(data); }catch(e){ console.error(e); } const s=document.getElementById(cbName); if(s) s.remove(); delete window[cbName]; };
+  const sc = document.createElement('script'); sc.id = cbName; sc.src = url + '&callback=' + cbName; document.body.appendChild(sc);
+}
+
+/* NAV */
+function nav(id){
+  const pages = ['requirements','lecturers','placements','emi','summaries','howto'];
+  pages.forEach(p => { document.getElementById(p).style.display = (p===id ? 'block':'none'); });
+}
+
+/* -------------------- REQUIREMENT ACTIONS -------------------- */
+function saveRequirement(){
+  if(!SCRIPT_URL || SCRIPT_URL.includes('PASTE_YOUR')) return alert('Set SCRIPT_URL in the HTML (see top of file)');
+  const payload = {
+    action: 'requirement',
+    collegeName: document.getElementById('req_college').value.trim(),
+    city: document.getElementById('req_city').value.trim(),
+    contactPerson: document.getElementById('req_contact').value.trim(),
+    phone: document.getElementById('req_phone').value.trim(),
+    subject: document.getElementById('req_subject').value,
+    noOfFaculty: document.getElementById('req_no').value,
+    salaryRange: document.getElementById('req_salary').value,
+    collectedBy: document.getElementById('req_collected').value
+  };
+  const qs = Object.keys(payload).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(payload[k]||'')).join('&');
+  jsonpGet(SCRIPT_URL + '?' + qs, 'saveReq', function(resp){
+    if(resp && resp.status === 'OK'){
+      document.getElementById('req_msg').innerText = 'Saved ✔ Ref: ' + resp.ref + ' at ' + new Date().toLocaleString();
+      appendReqRow(resp.ref, payload);
+    } else {
+      document.getElementById('req_msg').innerText = 'Save failed';
+      console.error(resp);
+    }
+  });
+}
+function clearRequirement(){ ['req_college','req_city','req_contact','req_phone','req_no'].forEach(id=>document.getElementById(id).value=''); document.getElementById('req_subject').selectedIndex=0; document.getElementById('req_salary').selectedIndex=0; }
+function appendReqRow(ref,p){
+  const tbody = document.querySelector('#req_summary_table tbody');
+  const tr = document.createElement('tr'); tr.innerHTML = `<td>${ref}</td><td>${esc(p.collegeName)}</td><td>${esc(p.city)}</td><td>${esc(p.subject)}</td><td>${esc(p.noOfFaculty)}</td><td>${esc(p.salaryRange)}</td><td>${esc(p.collectedBy)}</td>`; tbody.prepend(tr);
+}
+function showReqSummary(){ document.getElementById('req_summary').style.display='block'; window.print(); }
+
+/* -------------------- LECTURER ACTIONS -------------------- */
+function saveLecturer(){
+  if(!SCRIPT_URL || SCRIPT_URL.includes('PASTE_YOUR')) return alert('Set SCRIPT_URL in the HTML (top)');
+  const payload = {
+    action: 'lecturer',
+    lecturerName: document.getElementById('lec_name').value.trim(),
+    phone: document.getElementById('lec_phone').value.trim(),
+    email: document.getElementById('lec_email').value.trim(),
+    cvReceived: document.getElementById('lec_cv').value,
+    subject: document.getElementById('lec_subject').value,
+    experience: document.getElementById('lec_exp').value,
+    preferredCity: document.getElementById('lec_city').value,
+    collectedBy: document.getElementById('lec_collected').value
+  };
+  const qs = Object.keys(payload).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(payload[k]||'')).join('&');
+  jsonpGet(SCRIPT_URL + '?' + qs, 'saveLec', function(resp){
+    if(resp && resp.status === 'OK'){
+      document.getElementById('lec_msg').innerText = 'Saved ✔ Ref: ' + resp.ref + ' at ' + new Date().toLocaleString();
+      appendLecRow(resp.ref, payload);
+    } else {
+      document.getElementById('lec_msg').innerText = 'Save failed';
+      console.error(resp);
+    }
+  });
+}
+function clearLecturer(){ ['lec_name','lec_phone','lec_email','lec_exp','lec_city'].forEach(id=>document.getElementById(id).value=''); document.getElementById('lec_cv').selectedIndex=0; document.getElementById('lec_subject').selectedIndex=0; }
+function appendLecRow(ref,p){
+  const tbody = document.querySelector('#lec_summary_table tbody');
+  const tr = document.createElement('tr'); tr.innerHTML = `<td>${ref}</td><td>${esc(p.lecturerName)}</td><td>${esc(p.phone)}</td><td>${esc(p.email)}</td><td>${esc(p.cvReceived)}</td><td>${esc(p.subject)}</td><td>${esc(p.experience)}</td><td>${esc(p.collectedBy)}</td>`; tbody.prepend(tr);
+}
+function showLectSummary(){ document.getElementById('lec_summary').style.display='block'; window.print(); }
+
+/* -------------------- PLACEMENT & BILL LOGIC -------------------- */
+let _lastPreview = null;   // store preview for EMI / printing
+
+function generateBill(){
+  if(!SCRIPT_URL || SCRIPT_URL.includes('PASTE_YOUR')) return alert('Set SCRIPT_URL in the HTML at top');
+  const salary = parseFloat(document.getElementById('pl_salary').value) || 0;
+  const consultPct = parseFloat(document.getElementById('pl_consult_pct').value) || 50;
+  const prejoin = parseFloat(document.getElementById('pl_prejoin').value) || 499;
+  const gstPct = parseFloat(document.getElementById('pl_gst').value) || 18;
+  const keepFinal = document.getElementById('pl_keep_final').checked;
+
+  if(!salary){ return alert('Enter first salary amount'); }
+
+  const consultancyCalculated = Math.round(salary * consultPct / 100);
+  let base = 0, gstAmount = 0, totalIncl = 0;
+  if(keepFinal){
+    // treat consultancyCalculated as final total inc gst, compute base
+    const factor = 1 + gstPct/100;
+    base = Math.round((consultancyCalculated / factor) * 100)/100;
+    gstAmount = Math.round((consultancyCalculated - base)*100)/100;
+    totalIncl = consultancyCalculated;
+  } else {
+    base = consultancyCalculated;
+    gstAmount = Math.round((base * gstPct / 100) * 100)/100;
+    totalIncl = Math.round((base + gstAmount)*100)/100;
+  }
+
+  const afterPre = Math.round((totalIncl - prejoin)*100)/100;
+  const emi1 = Math.round(base/2);
+  const emi2 = base - emi1;
+
+  // Build HTML summary
+  const html = `<div class="card"><strong>Bill calculation</strong><table><tr><td>Consultancy base (before GST)</td><td>₹${fmt(base)}</td></tr><tr><td>GST @ ${gstPct}%</td><td>₹${fmt(gstAmount)}</td></tr><tr><td><strong>Total (incl GST)</strong></td><td><strong>₹${fmt(totalIncl)}</strong></td></tr><tr><td>Pre-joining fee</td><td>₹${fmt(prejoin)}</td></tr><tr><td><strong>Due after pre-join</strong></td><td><strong>₹${fmt(afterPre)}</strong></td></tr><tr><td>EMI1 (base split)</td><td>₹${fmt(emi1)}</td></tr><tr><td>EMI2 (base split)</td><td>₹${fmt(emi2)}</td></tr></table><div style="margin-top:8px"><button class="primary" onclick="previewInvoice(${base},${gstAmount},${totalIncl},${prejoin},${emi1},${emi2})">Preview Invoice & Save</button></div></div>`;
+  document.getElementById('pl_calc').innerHTML = html;
+
+  // prepare calendar links if first salary date exists
+  const firstSalaryDate = document.getElementById('pl_first_salary_date').value;
+  if(firstSalaryDate){
+    const d1 = new Date(firstSalaryDate);
+    const d2 = new Date(d1.getTime() + (30*24*60*60*1000));
+    const fmtDate = d => { const y=d.getFullYear(); const m=('0'+(d.getMonth()+1)).slice(-2); const day=('0'+d.getDate()).slice(-2); return `${y}${m}${day}`; };
+    const title1 = encodeURIComponent('EMI 1 - Rutvi Consultants');
+    const title2 = encodeURIComponent('EMI 2 - Rutvi Consultants');
+    const dates1 = fmtDate(d1) + '/' + fmtDate(d1);
+    const dates2 = fmtDate(d2) + '/' + fmtDate(d2);
+    window._calendarLinks = {
+      url1: `https://www.google.com/calendar/render?action=TEMPLATE&text=${title1}&dates=${dates1}`,
+      url2: `https://www.google.com/calendar/render?action=TEMPLATE&text=${title2}&dates=${dates2}`
+    };
+    document.getElementById('cal_btn').style.display = 'inline-block';
+  } else {
+    window._calendarLinks = null;
+    document.getElementById('cal_btn').style.display = 'none';
+  }
+}
+
+function previewInvoice(base, gst, total, preJoin, emi1, emi2){
+  document.getElementById('invoice_preview').style.display = 'block';
+  document.getElementById('inv_ref').innerText = 'will be assigned';
+  document.getElementById('inv_date').innerText = new Date().toLocaleDateString();
+  const tbody = document.querySelector('#inv_table tbody'); tbody.innerHTML = '';
+  const services = [
+    {s:1, name:'Requirement & Profiling', amt:0},
+    {s:2, name:'Screening & Verification', amt:0},
+    {s:3, name:'Demo Coordination', amt:0},
+    {s:4, name:'Joining Assistance', amt:0},
+    {s:5, name:'Consultancy Fee (base)', amt: base}
+  ];
+  let subtotal = 0;
+  services.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r.s}</td><td>${r.name}</td><td>₹${fmt(r.amt)}</td>`;
+    tbody.appendChild(tr); subtotal += (r.amt||0);
+  });
+  const gstRow = document.createElement('tr'); gstRow.innerHTML = `<td></td><td>GST</td><td>₹${fmt(gst)}</td>`; tbody.appendChild(gstRow);
+  document.getElementById('inv_sub').innerText = '₹' + fmt(subtotal);
+  document.getElementById('inv_gst').innerText = '₹' + fmt(gst);
+  document.getElementById('inv_total').innerText = '₹' + fmt(total);
+
+  // store preview to use while saving and for EMI page
+  window._lastPreview = {
+    base: base, gst: gst, total: total, preJoin: preJoin, emi1: emi1, emi2: emi2, firstSalaryDate: document.getElementById('pl_first_salary_date').value, joiningDate: document.getElementById('pl_joining').value
+  };
+
+  // build EMI area
+  buildEmiArea();
+}
+
+function savePlacement(){
+  if(!SCRIPT_URL || SCRIPT_URL.includes('PASTE_YOUR')) return alert('Set SCRIPT_URL in the HTML (top)');
+  if(!window._lastPreview) return alert('Preview invoice first');
+  // prepare payload
+  const payload = {
+    action: 'placement',
+    lecturerName: document.getElementById('pl_lect').value.trim(),
+    collegeName: document.getElementById('pl_college').value.trim(),
+    subject: document.getElementById('pl_subject').value,
+    city: document.getElementById('pl_city').value.trim(),
+    phone: document.getElementById('pl_phone').value.trim(),
+    salary: document.getElementById('pl_salary').value || '',
+    consultancyPercent: document.getElementById('pl_consult_pct').value || '50',
+    gstPercent: document.getElementById('pl_gst').value || '18',
+    totalInclGst: window._lastPreview.total || '',
+    preJoin: window._lastPreview.preJoin || '',
+    firstSalaryDate: window._lastPreview.firstSalaryDate || '',
+    joiningDate: window._lastPreview.joiningDate || '',
+    incharge: document.getElementById('pl_incharge').value || '',
+    collectedBy: document.getElementById('pl_collected').value || '',
+    keepTotalEqualsConsultancy: document.getElementById('pl_keep_final').checked ? 'true':'false'
+  };
+  const qs = Object.keys(payload).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(payload[k]||'')).join('&');
+  jsonpGet(SCRIPT_URL + '?' + qs, 'savePlace', function(resp){
+    if(resp && resp.status === 'OK'){
+      document.getElementById('pl_calc').innerHTML = '';
+      document.getElementById('invoice_preview').style.display = 'block';
+      document.getElementById('inv_ref').innerText = resp.ref;
+      document.getElementById('placement_summary').innerText = 'Saved ✔ Ref: ' + resp.ref + ' at ' + new Date().toLocaleString();
+      // add to placement summary table for printing (append)
+      appendPlacementRow(resp.ref, payload, window._lastPreview);
+    } else {
+      document.getElementById('placement_summary').innerText = 'Save failed';
+      console.error(resp);
+    }
+  });
+}
+
+function appendPlacementRow(ref, p, preview){
+  // add to EMI table preview
+  const tbody = document.querySelector('#emi_table tbody');
+  const row1 = document.createElement('tr');
+  row1.innerHTML = `<td>${ref}</td><td>EMI1</td><td>₹${fmt(preview.emi1)}</td><td>${preview.firstSalaryDate || '-'}</td>`;
+  const row2 = document.createElement('tr');
+  // compute EMI2 date
+  let emi2Date = '';
+  if(preview.firstSalaryDate){
+    try{
+      const d1 = new Date(preview.firstSalaryDate);
+      const d2 = new Date(d1.getTime() + (30*24*60*60*1000));
+      const y=d2.getFullYear(); const m=('0'+(d2.getMonth()+1)).slice(-2); const day=('0'+d2.getDate()).slice(-2);
+      emi2Date = `${y}-${m}-${day}`;
+    }catch(e){}
+  }
+  row2.innerHTML = `<td>${ref}</td><td>EMI2</td><td>₹${fmt(preview.emi2)}</td><td>${emi2Date || '-'}</td>`;
+  tbody.prepend(row2); tbody.prepend(row1);
+}
+
+/* build EMI schedule area */
+function buildEmiArea(){
+  const area = document.getElementById('emi_area');
+  area.innerHTML = '';
+  if(!window._lastPreview) return area.innerHTML = '<div class="muted small">Generate a bill to see EMI schedule here.</div>';
+  const preview = window._lastPreview;
+  const emi1Date = preview.firstSalaryDate || '-';
+  let emi2Date = '-';
+  if(preview.firstSalaryDate){
+    const d1 = new Date(preview.firstSalaryDate);
+    const d2 = new Date(d1.getTime() + 30*24*60*60*1000);
+    const y=d2.getFullYear(); const m=('0'+(d2.getMonth()+1)).slice(-2); const day=('0'+d2.getDate()).slice(-2);
+    emi2Date = `${y}-${m}-${day}`;
+  }
+  const html = `<div class="card"><strong>EMI Schedule</strong><table><tr><th>EMI</th><th>Amount</th><th>Date</th></tr><tr><td>EMI1</td><td>₹${fmt(preview.emi1)}</td><td>${emi1Date}</td></tr><tr><td>EMI2</td><td>₹${fmt(preview.emi2)}</td><td>${emi2Date}</td></tr></table></div>`;
+  area.innerHTML = html;
+  // also show print version below
+  document.getElementById('emi_print').style.display = 'block';
+  // append rows to printable table (replace)
+  const tbody = document.querySelector('#emi_table tbody'); tbody.innerHTML = '';
+  const r1 = document.createElement('tr'); r1.innerHTML = `<td>--</td><td>EMI1</td><td>₹${fmt(preview.emi1)}</td><td>${emi1Date}</td>`;
+  const r2 = document.createElement('tr'); r2.innerHTML = `<td>--</td><td>EMI2</td><td>₹${fmt(preview.emi2)}</td><td>${emi2Date}</td>`;
+  tbody.prepend(r2); tbody.prepend(r1);
+}
+
+function printInvoice(){ document.getElementById('invoice_preview').style.display='block'; window.print(); }
+function printEmi(){ document.getElementById('emi_print').style.display='block'; window.print(); }
+
+/* calendar open */
+function openCalendar(){
+  if(window._calendarLinks){
+    window.open(window._calendarLinks.url1,'_blank');
+    window.open(window._calendarLinks.url2,'_blank');
+  } else alert('No EMI dates prepared (set First Salary Date before generating bill).');
+}
+
+/* Placement summaries page */
+function showPlacementSummary(){
+  // we already populate EMI printable table during saves; open print
+  document.getElementById('emi_print').style.display='block'; window.print();
+}
+
+/* -------------------- small helpers -------------------- */
+function fmt(v){ return (typeof v === 'number') ? v.toLocaleString('en-IN') : v; }
+function esc(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* initialize default */
+document.addEventListener('DOMContentLoaded', function(){ nav('requirements'); });
+</script>
+</body>
+</html>
